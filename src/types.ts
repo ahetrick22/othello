@@ -24,7 +24,7 @@ type SquareAdjacents = {
 };
 
 export type GridType = {
-  [key: number]: {
+  [key: string]: {
     current: SquareState;
     adjacents: SquareAdjacents;
   };
