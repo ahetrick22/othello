@@ -12,7 +12,7 @@ export enum SquareState {
 
 type AdjacentType = number | null;
 
-export type SquareAdjacents = {
+type SquareAdjacents = {
   topLeft: AdjacentType;
   top: AdjacentType;
   topRight: AdjacentType;
@@ -21,4 +21,11 @@ export type SquareAdjacents = {
   bottomRight: AdjacentType;
   bottom: AdjacentType;
   bottomLeft: AdjacentType;
+};
+
+export type GridType = {
+  [key: number]: {
+    current: SquareState;
+    adjacents: SquareAdjacents;
+  };
 };
