@@ -23,9 +23,11 @@ type SquareAdjacents = {
   bottomLeft: AdjacentType;
 };
 
+export type GridSquare = {
+  current: SquareState;
+  adjacents: SquareAdjacents;
+};
+
 export type GridType = {
-  [key: string]: {
-    current: SquareState;
-    adjacents: SquareAdjacents;
-  };
+  [key: string]: GridSquare;
 };
