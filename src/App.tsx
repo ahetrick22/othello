@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { CurrentTurn, GridSquare, GridType, SquareState } from "./types";
 import { initializeGrid } from "./utils";
+import { GameSquare } from "./components/GameSquare";
 
 type GameState = {
   grid: GridType;
@@ -209,16 +210,12 @@ function App() {
     <Box>
       <Heading>OTHELLO</Heading>
       <SimpleGrid columns={GRID_SIZE} spacing={0} maxWidth={42 * GRID_SIZE}>
-        {Object.keys(grid).map((square, i) => (
-          <Box
-            w={40}
-            h={40}
+        {Object.keys(grid).map((squareKey, i) => (
+          <GameSquare
             key={i}
-            border={"1px solid gray"}
-            onClick={() => handleSquareSelect(square)}
-          >
-            {grid[square].current[0]}
-          </Box>
+            onClick={() => handleSquareSelect(squareKey)}
+            current={grid[squareKey].current}
+          />
         ))}
       </SimpleGrid>
     </Box>
