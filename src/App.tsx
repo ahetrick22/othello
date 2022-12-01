@@ -84,6 +84,11 @@ function App() {
       return null;
     }
 
+    let updatedGrid = {
+      ...grid,
+    };
+    let moveWasMade = false;
+
     // otherwise, check validity of move across each adjacent direction
     opponentAdjacent.forEach((adjSquareDirection) => {
       const firstSquareToCheck =
@@ -100,9 +105,7 @@ function App() {
       );
 
       if (positions) {
-        let updatedGrid = {
-          ...grid,
-        };
+        moveWasMade = true;
 
         positions.forEach((pos) => {
           updatedGrid = {
@@ -110,28 +113,29 @@ function App() {
             [pos]: { ...updatedGrid[pos], current: playerColor },
           };
         });
-
-        const newPlayerTurn =
-          currentTurn === CurrentTurn.white
-            ? CurrentTurn.black
-            : CurrentTurn.white;
-
-        // check if the game is over
-        if (!isRemainingValidMove(newPlayerTurn, updatedGrid)) {
-          setState((prevState) => ({
-            ...prevState,
-            grid: updatedGrid,
-            currentTurn: CurrentTurn.endState,
-          }));
-        } else {
-          setState((prevState) => ({
-            ...prevState,
-            grid: updatedGrid,
-            currentTurn: newPlayerTurn,
-          }));
-        }
       }
     });
+    if (moveWasMade) {
+      const newPlayerTurn =
+        currentTurn === CurrentTurn.white
+          ? CurrentTurn.black
+          : CurrentTurn.white;
+
+      // check if the game is over
+      if (!isRemainingValidMove(newPlayerTurn, updatedGrid)) {
+        setState((prevState) => ({
+          ...prevState,
+          grid: updatedGrid,
+          currentTurn: CurrentTurn.endState,
+        }));
+      } else {
+        setState((prevState) => ({
+          ...prevState,
+          grid: updatedGrid,
+          currentTurn: newPlayerTurn,
+        }));
+      }
+    }
   };
 
   const isRemainingValidMove = (
