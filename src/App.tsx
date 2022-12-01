@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
+import React, { useMemo, useState } from "react";
+import { Box, Button, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import { CurrentTurn, GridSquare, GridType, SquareState } from "./types";
 import { initializeGrid } from "./utils";
 import { GameSquare } from "./components/GameSquare";
@@ -207,9 +207,36 @@ function App() {
 
   const resetGame = () => setState(initialGameState);
 
+  const currentScore = useMemo(() => {
+    const black = Object.values(grid).filter(
+      (square) => square.current === SquareState.black
+    );
+    const white = Object.values(grid).filter(
+      (square) => square.current === SquareState.white
+    );
+    return {
+      black: black.length,
+      white: white.length,
+    };
+  }, [grid]);
+
   return (
-    <Box>
+    <Box
+      bg={`linear-gradient(
+    95.2deg,
+    rgba(173, 252, 234, 1) 26.8%,
+    rgba(192, 229, 246, 1) 64%
+  )`}
+      h={"100vh"}
+      w={"100vw"}
+    >
       <Heading>OTHELLO</Heading>
+      <Button onClick={resetGame} colorScheme={"blue"}>
+        Reset
+      </Button>
+      <Text>Current Turn: {currentTurn}</Text>
+      <Text>Black score: {currentScore.black}</Text>
+      <Text>White score: {currentScore.white}</Text>
       <SimpleGrid columns={GRID_SIZE} spacing={0} maxWidth={42 * GRID_SIZE}>
         {Object.keys(grid).map((squareKey, i) => (
           <GameSquare

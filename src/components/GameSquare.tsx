@@ -21,12 +21,12 @@ export const GameSquare = ({
   };
 
   return (
-    <Box w={40} h={40} border={"1px solid gray"} onClick={onClick}>
+    <Box w={"40px"} h={"40px"} border={"1px solid gray"} onClick={onClick}>
       <Box
-        w={36}
-        h={36}
-        mt={1}
-        ml={1}
+        w={"36px"}
+        h={"36px"}
+        mt={"1px"}
+        ml={"1px"}
         borderRadius={"50%"}
         bg={getSquareColor()}
       />

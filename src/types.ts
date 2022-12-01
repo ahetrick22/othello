@@ -1,7 +1,7 @@
 export enum CurrentTurn {
-  white = "white",
-  black = "black",
-  endState = "endState",
+  white = "White",
+  black = "Black",
+  endState = "Game over",
 }
 
 export enum SquareState {
