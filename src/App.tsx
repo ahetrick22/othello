@@ -19,6 +19,39 @@ function App() {
   const [{ grid, currentTurn }, setState] =
     useState<GameState>(initialGameState);
 
+  const checkSquare = (
+    currentSquare: GridSquare,
+    currentSquareIndex: string,
+    playerColor: SquareState,
+    opponentColor: SquareState,
+    adjSquareDirection: string,
+    positionsToSwap: string[]
+  ) => {
+    // invalid move - we either hit the edge or an unplayed square
+    if (
+      currentSquare.adjacents[adjSquareDirection] === null ||
+      currentSquare.current === SquareState.notPlayed
+    ) {
+      return null;
+    }
+    // if still the opponent color, continue to recurse over direction
+    else if (currentSquare.current === opponentColor) {
+      positionsToSwap.push(currentSquareIndex);
+      return checkSquare(
+        grid[currentSquare.adjacents[adjSquareDirection]],
+        currentSquare.adjacents[adjSquareDirection],
+        playerColor,
+        opponentColor,
+        adjSquareDirection,
+        positionsToSwap
+      );
+      // valid move and complete array
+    } else {
+      positionsToSwap.push(currentSquareIndex);
+    }
+    return positionsToSwap;
+  };
+
   const handleSquareSelect = (squareIndex: string) => {
     const squareValue = grid[squareIndex];
     // if the game is over, nothing is valid
@@ -40,7 +73,6 @@ function App() {
 
     // find the valid adjacent squares - these are the ones that might turn
     const adjacentSquares = Object.keys(squareValue.adjacents);
-    console.log({ adjacentSquares }, squareValue.adjacents);
     const opponentAdjacent = adjacentSquares.filter(
       (key) =>
         squareValue.adjacents[key] &&
@@ -54,61 +86,117 @@ function App() {
 
     // otherwise, check validity of move across each adjacent direction
     opponentAdjacent.forEach((adjSquareDirection) => {
-      let positionsToSwap: string[] = [squareIndex];
-
-      const checkSquare = (
-        currentSquare: GridSquare,
-        currentSquareIndex: string
-      ) => {
-        // valid move and complete array
-        if (currentSquare.current === playerColor) {
-          positionsToSwap.forEach((pos) => {
-            setState((prevState) => ({
-              ...prevState,
-              grid: {
-                ...prevState.grid,
-                [pos]: { ...prevState.grid[pos], current: playerColor },
-              },
-            }));
-          });
-        }
-        // invalid move - we either hit the edge or an unplayed square
-        if (
-          currentSquare.adjacents[adjSquareDirection] === null ||
-          currentSquare.current === SquareState.notPlayed
-        ) {
-          positionsToSwap = [];
-        }
-        // if still the opponent color, continue to recurse over direction
-        if (currentSquare.current === opponentColor) {
-          positionsToSwap.push(currentSquareIndex);
-          checkSquare(
-            grid[currentSquare.adjacents[adjSquareDirection]],
-            currentSquare.adjacents[adjSquareDirection]
-          );
-        }
-      };
       const firstSquareToCheck =
         grid[squareValue.adjacents[adjSquareDirection]];
+      const positionsToSwap: string[] = [squareIndex];
 
-      checkSquare(
+      const positions = checkSquare(
         firstSquareToCheck,
-        squareValue.adjacents[adjSquareDirection]
+        squareValue.adjacents[adjSquareDirection],
+        playerColor,
+        opponentColor,
+        adjSquareDirection,
+        positionsToSwap
       );
-    });
 
-    // check if the game is over, otherwise update the turn
-    if (currentTurn === CurrentTurn.black) {
-      setState((prevState) => ({
-        ...prevState,
-        currentTurn: CurrentTurn.white,
-      }));
-    } else {
-      setState((prevState) => ({
-        ...prevState,
-        currentTurn: CurrentTurn.black,
-      }));
+      if (positions) {
+        let updatedGrid = {
+          ...grid,
+        };
+
+        positions.forEach((pos) => {
+          updatedGrid = {
+            ...updatedGrid,
+            [pos]: { ...updatedGrid[pos], current: playerColor },
+          };
+        });
+
+        const newPlayerTurn =
+          currentTurn === CurrentTurn.white
+            ? CurrentTurn.black
+            : CurrentTurn.white;
+
+        // check if the game is over
+        if (!isRemainingValidMove(newPlayerTurn, updatedGrid)) {
+          setState((prevState) => ({
+            ...prevState,
+            grid: updatedGrid,
+            currentTurn: CurrentTurn.endState,
+          }));
+        } else {
+          setState((prevState) => ({
+            ...prevState,
+            grid: updatedGrid,
+            currentTurn: newPlayerTurn,
+          }));
+        }
+      }
+    });
+  };
+
+  const isRemainingValidMove = (
+    currentPlayerTurn: CurrentTurn,
+    currentGrid: GridType
+  ) => {
+    // if game happens to be over already, no valid moves
+    if (currentPlayerTurn === CurrentTurn.endState) {
+      return false;
     }
+
+    // if all spaces are played, no valid moves
+    if (
+      !Object.keys(currentGrid).find(
+        (key) => currentGrid[key].current === SquareState.notPlayed
+      )
+    ) {
+      return false;
+    }
+
+    const opponentColor =
+      currentPlayerTurn === CurrentTurn.black
+        ? SquareState.white
+        : SquareState.black;
+    const playerColor =
+      opponentColor === SquareState.black
+        ? SquareState.white
+        : SquareState.black;
+
+    let validMoveFound = false;
+
+    Object.keys(currentGrid).forEach((key) => {
+      // if we haven't already found a valid move, keep checking
+      if (!validMoveFound) {
+        const squareValue = currentGrid[key];
+
+        const adjacentSquares = Object.keys(squareValue.adjacents);
+        const opponentAdjacent = adjacentSquares.filter(
+          (key) =>
+            squareValue.adjacents[key] &&
+            grid[squareValue.adjacents[key]].current === opponentColor
+        );
+
+        // See if there are valid positions
+        opponentAdjacent.forEach((adjSquareDirection) => {
+          const firstSquareToCheck =
+            grid[squareValue.adjacents[adjSquareDirection]];
+          const positionsToSwap: string[] = [key];
+
+          const positions = checkSquare(
+            firstSquareToCheck,
+            squareValue.adjacents[adjSquareDirection],
+            playerColor,
+            opponentColor,
+            adjSquareDirection,
+            positionsToSwap
+          );
+
+          if (positions) {
+            validMoveFound = true;
+          }
+        });
+      }
+    });
+    return validMoveFound;
   };
 
   const resetGame = () => setState(initialGameState);
