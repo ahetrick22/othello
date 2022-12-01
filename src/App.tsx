@@ -30,8 +30,9 @@ function App() {
   ) => {
     // invalid move - we either hit the edge or an unplayed square
     if (
-      currentSquare.adjacents[adjSquareDirection] === null ||
-      currentSquare.current === SquareState.notPlayed
+      (currentSquare.adjacents[adjSquareDirection] === null ||
+        currentSquare.current === SquareState.notPlayed) &&
+      currentSquare.current !== playerColor
     ) {
       return null;
     }

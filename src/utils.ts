@@ -17,7 +17,7 @@ export const initializeGrid = (gridSize: number) => {
     const currentRowIsTop = currentRow === 0;
     const currentRowIsBottom = currentRow === gridSize - 1;
     const currentColIsLeft = currentCol === 0;
-    const currentColIsRight = currentRow === gridSize - 1;
+    const currentColIsRight = currentCol === gridSize - 1;
 
     // build the grid of an empty square and all adjacents for each key (null if no adjacent in position)
     grid[i] = {
