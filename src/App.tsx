@@ -1,14 +1,9 @@
 import React, { useMemo, useState } from "react";
-import { Box, Button, Heading, SimpleGrid, Text } from "@chakra-ui/react";
+import { Button, Flex, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import { CurrentTurn, GridType, SquareState } from "./types";
 import { checkSquare, getCurrentScore, initializeGrid } from "./utils";
 import { GameSquare } from "./components/GameSquare";
 import { bgColor, GRID_SIZE } from "./constants";
-
-/*
-extract out utils & helper functions
-write README
- */
 
 type GameState = {
   grid: GridType;
@@ -181,15 +176,36 @@ function App() {
   const currentScore = useMemo(() => getCurrentScore(grid), [grid]);
 
   return (
-    <Box bg={bgColor} h={"100vh"} w={"100vw"}>
+    <Flex
+      alignItems={"center"}
+      bg={bgColor}
+      flexDirection={"column"}
+      gap={4}
+      h={"100vh"}
+      p={12}
+      w={"100vw"}
+    >
       <Heading>OTHELLO</Heading>
+      <Flex gap={4}>
+        <Text>
+          <strong>Current Turn:</strong> {currentTurn}
+        </Text>
+        <Text>
+          <strong>Black score:</strong> {currentScore.black}
+        </Text>
+        <Text>
+          <strong>White score:</strong> {currentScore.white}
+        </Text>
+      </Flex>
       <Button onClick={resetGame} colorScheme={"blue"}>
-        Reset
+        Reset Game
       </Button>
-      <Text>Current Turn: {currentTurn}</Text>
-      <Text>Black score: {currentScore.black}</Text>
-      <Text>White score: {currentScore.white}</Text>
-      <SimpleGrid columns={GRID_SIZE} spacing={0} maxWidth={42 * GRID_SIZE}>
+      <SimpleGrid
+        columns={GRID_SIZE}
+        spacing={0}
+        maxWidth={42 * GRID_SIZE}
+        alignSelf={"center"}
+      >
         {Object.keys(grid).map((squareKey, i) => (
           <GameSquare
             current={grid[squareKey].current}
@@ -198,7 +214,7 @@ function App() {
           />
         ))}
       </SimpleGrid>
-    </Box>
+    </Flex>
   );
 }
 
