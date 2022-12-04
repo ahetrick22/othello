@@ -1,15 +1,20 @@
 import React, { useMemo, useState } from "react";
 import { Box, Button, Heading, SimpleGrid, Text } from "@chakra-ui/react";
-import { CurrentTurn, GridSquare, GridType, SquareState } from "./types";
-import { initializeGrid } from "./utils";
+import { CurrentTurn, GridType, SquareState } from "./types";
+import { checkSquare, getCurrentScore, initializeGrid } from "./utils";
 import { GameSquare } from "./components/GameSquare";
+import { bgColor, GRID_SIZE } from "./constants";
+
+/*
+Solve game over logic when board isn't full
+extract out utils & helper functions
+write README
+ */
 
 type GameState = {
   grid: GridType;
   currentTurn: CurrentTurn;
 };
-
-const GRID_SIZE = 8;
 
 const initialGameState: GameState = {
   grid: initializeGrid(GRID_SIZE),
@@ -19,40 +24,6 @@ const initialGameState: GameState = {
 function App() {
   const [{ grid, currentTurn }, setState] =
     useState<GameState>(initialGameState);
-
-  const checkSquare = (
-    currentSquare: GridSquare,
-    currentSquareIndex: string,
-    playerColor: SquareState,
-    opponentColor: SquareState,
-    adjSquareDirection: string,
-    positionsToSwap: string[]
-  ) => {
-    // invalid move - we either hit the edge or an unplayed square
-    if (
-      (currentSquare.adjacents[adjSquareDirection] === null ||
-        currentSquare.current === SquareState.notPlayed) &&
-      currentSquare.current !== playerColor
-    ) {
-      return null;
-    }
-    // if still the opponent color, continue to recurse over direction
-    else if (currentSquare.current === opponentColor) {
-      positionsToSwap.push(currentSquareIndex);
-      return checkSquare(
-        grid[currentSquare.adjacents[adjSquareDirection]],
-        currentSquare.adjacents[adjSquareDirection],
-        playerColor,
-        opponentColor,
-        adjSquareDirection,
-        positionsToSwap
-      );
-      // valid move and complete array
-    } else {
-      positionsToSwap.push(currentSquareIndex);
-    }
-    return positionsToSwap;
-  };
 
   const handleSquareSelect = (squareIndex: string) => {
     const squareValue = grid[squareIndex];
@@ -103,7 +74,8 @@ function App() {
         playerColor,
         opponentColor,
         adjSquareDirection,
-        positionsToSwap
+        positionsToSwap,
+        grid
       );
 
       if (positions) {
@@ -178,13 +150,13 @@ function App() {
         const opponentAdjacent = adjacentSquares.filter(
           (key) =>
             squareValue.adjacents[key] &&
-            grid[squareValue.adjacents[key]].current === opponentColor
+            currentGrid[squareValue.adjacents[key]].current === opponentColor
         );
 
         // See if there are valid positions
         opponentAdjacent.forEach((adjSquareDirection) => {
           const firstSquareToCheck =
-            grid[squareValue.adjacents[adjSquareDirection]];
+            currentGrid[squareValue.adjacents[adjSquareDirection]];
           const positionsToSwap: string[] = [key];
 
           const positions = checkSquare(
@@ -193,7 +165,8 @@ function App() {
             playerColor,
             opponentColor,
             adjSquareDirection,
-            positionsToSwap
+            positionsToSwap,
+            currentGrid
           );
 
           if (positions) {
@@ -207,29 +180,10 @@ function App() {
 
   const resetGame = () => setState(initialGameState);
 
-  const currentScore = useMemo(() => {
-    const black = Object.values(grid).filter(
-      (square) => square.current === SquareState.black
-    );
-    const white = Object.values(grid).filter(
-      (square) => square.current === SquareState.white
-    );
-    return {
-      black: black.length,
-      white: white.length,
-    };
-  }, [grid]);
+  const currentScore = useMemo(() => getCurrentScore(grid), [grid]);
 
   return (
-    <Box
-      bg={`linear-gradient(
-    95.2deg,
-    rgba(173, 252, 234, 1) 26.8%,
-    rgba(192, 229, 246, 1) 64%
-  )`}
-      h={"100vh"}
-      w={"100vw"}
-    >
+    <Box bg={bgColor} h={"100vh"} w={"100vw"}>
       <Heading>OTHELLO</Heading>
       <Button onClick={resetGame} colorScheme={"blue"}>
         Reset
@@ -240,9 +194,9 @@ function App() {
       <SimpleGrid columns={GRID_SIZE} spacing={0} maxWidth={42 * GRID_SIZE}>
         {Object.keys(grid).map((squareKey, i) => (
           <GameSquare
+            current={grid[squareKey].current}
             key={i}
             onClick={() => handleSquareSelect(squareKey)}
-            current={grid[squareKey].current}
           />
         ))}
       </SimpleGrid>

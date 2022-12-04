@@ -1,4 +1,4 @@
-import { GridType, SquareState } from "./types";
+import { GridSquare, GridType, SquareState } from "./types";
 
 export const initializeGrid = (gridSize: number) => {
   if (gridSize % 2 !== 0 || gridSize < 4) {
@@ -54,4 +54,53 @@ export const initializeGrid = (gridSize: number) => {
   }
 
   return grid;
+};
+
+export const getCurrentScore = (grid: GridType) => {
+  const black = Object.values(grid).filter(
+    (square) => square.current === SquareState.black
+  );
+  const white = Object.values(grid).filter(
+    (square) => square.current === SquareState.white
+  );
+  return {
+    black: black.length,
+    white: white.length,
+  };
+};
+
+export const checkSquare = (
+  currentSquare: GridSquare,
+  currentSquareIndex: string,
+  playerColor: SquareState,
+  opponentColor: SquareState,
+  adjSquareDirection: string,
+  positionsToSwap: string[],
+  grid: GridType
+) => {
+  // invalid move - we either hit the edge or an unplayed square
+  if (
+    (currentSquare.adjacents[adjSquareDirection] === null ||
+      currentSquare.current === SquareState.notPlayed) &&
+    currentSquare.current !== playerColor
+  ) {
+    return null;
+  }
+  // if still the opponent color, continue to recurse over direction
+  else if (currentSquare.current === opponentColor) {
+    positionsToSwap.push(currentSquareIndex);
+    return checkSquare(
+      grid[currentSquare.adjacents[adjSquareDirection]],
+      currentSquare.adjacents[adjSquareDirection],
+      playerColor,
+      opponentColor,
+      adjSquareDirection,
+      positionsToSwap,
+      grid
+    );
+    // valid move and complete array
+  } else {
+    positionsToSwap.push(currentSquareIndex);
+  }
+  return positionsToSwap;
 };
