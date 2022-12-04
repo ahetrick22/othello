@@ -6,7 +6,6 @@ import { GameSquare } from "./components/GameSquare";
 import { bgColor, GRID_SIZE } from "./constants";
 
 /*
-Solve game over logic when board isn't full
 extract out utils & helper functions
 write README
  */
@@ -142,10 +141,9 @@ function App() {
     let validMoveFound = false;
 
     Object.keys(currentGrid).forEach((key) => {
+      const squareValue = currentGrid[key];
       // if we haven't already found a valid move, keep checking
-      if (!validMoveFound) {
-        const squareValue = currentGrid[key];
-
+      if (!validMoveFound && squareValue.current === SquareState.notPlayed) {
         const adjacentSquares = Object.keys(squareValue.adjacents);
         const opponentAdjacent = adjacentSquares.filter(
           (key) =>

@@ -88,7 +88,7 @@ export const checkSquare = (
   }
   // if still the opponent color, continue to recurse over direction
   else if (currentSquare.current === opponentColor) {
-    positionsToSwap.push(currentSquareIndex);
+    positionsToSwap.push(currentSquareIndex.toString());
     return checkSquare(
       grid[currentSquare.adjacents[adjSquareDirection]],
       currentSquare.adjacents[adjSquareDirection],
@@ -100,7 +100,7 @@ export const checkSquare = (
     );
     // valid move and complete array
   } else {
-    positionsToSwap.push(currentSquareIndex);
+    positionsToSwap.push(currentSquareIndex.toString());
   }
   return positionsToSwap;
 };
