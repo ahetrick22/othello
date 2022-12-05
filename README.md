@@ -1,6 +1,55 @@
-# Getting Started with Create React App
+# Othello
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## How to Run
+The app can run locally with either yarn or npm: `npm install` and `npm start`.
+
+## Dependencies
+(In addition to the expected dependencies of a React app built with CRA)
+
+### Chakra UI
+I chose to use Chakra UI for styling. It's definitely overkill for this project, but it's a nice extensible package that I happened to know how to use already, so it'd be easy to add additional styling and features.
+
+## Decisions
+- *Hash for grid construction over nested array*: I chose to map the board by unique position and store the adjacent positions in the grid's setup to avoid nested arrays as much as possible. As an example, the first 2 rows of the board are structured like this (extra 0s added for spacing):
+- `00` `01` `02` `03` `04` `05` `06` `07`
+- `08` `09` `10` `11` `12` `13` `14` `15`
+
+And square `6` (as an example) will be initialized as follows:
+```
+{
+    7: {
+    current: 'notPlayed',
+    adjacents: {
+            top: null,
+            topLeft: null,
+            topRight: null,
+            left: 5,
+            right: 7,
+            bottomLeft: 13,
+            bottom: 14,
+            bottomRight: 15,
+        }
+    }   
+}
+```
+
+This also kept things relatively simple for directional lookups.
+
+- *Recursion for `checkSquare`*: In combination with storing the adjacent square positions, this makes checking around the selected square in a given direction out as far as necessary extensible to any size.
+- *Local state usage*: Because this app wasn't that complicated, I chose to just store the grid and current turn in local state, and pass the grid through to functions with the business logic when needed. This makes those functions more easily able to be tested once you get to the point of adding tests. Of course, it could be moved to context or Redux or anything else in order to avoid prop drilling, but it wasn't nested deeply enough here to become confusing to me.
+
+## Extensions & Refactors
+
+These are features that could easily be supported & things I would refactor given more time.
+
+- *Extract out utils*: refactor `handleSquareSelect` and `isRemainingValidMove` in order to make those functions more testable, more single purpose, and possibly to share portions of the code between them.
+- *Adjustable grid size*: because of the way I wrote the logic, this will support any even number for the square grid if you wanted to play on a grid of 6x6, 10x10, 12x12, etc. instead of 8x8. You could even move it to local state instead of setting it as a constant so that the user could toggle it. 
+- *Different personalization options*: One common option in these kinds of games is to allow for different color schemes to be selected. You could offer different background colors or different piece colors (although you'd have to change the score labels, too). 
+- *Saving state in local storage*: One nice option might be to store the state (grid & current turn) in local storage so that if you were to reload the page, it could pick up right where you left off.
+
+
+## Project Initiation Details
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). See below for their README.
 
 ## Available Scripts
 
