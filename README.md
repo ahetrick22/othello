@@ -9,6 +9,9 @@ The app can run locally with either yarn or npm: `npm install` and `npm start`.
 ### Chakra UI
 I chose to use Chakra UI for styling. It's definitely overkill for this project, but it's a nice extensible package that I happened to know how to use already, so it'd be easy to add additional styling and features.
 
+### Prettier
+I added prettier as a dev dependency for code formatting - this can be further configured by IDE, which is how I did it, but scripts/pre-commit hooks could also be added for it if desired.
+
 ## Decisions
 - *Hash for grid construction over nested array*: I chose to map the board by unique position and store the adjacent positions in the grid's setup to avoid nested arrays as much as possible. As an example, the first 2 rows of the board are structured like this (extra 0s added for spacing):
 - `00` `01` `02` `03` `04` `05` `06` `07`
@@ -17,7 +20,7 @@ I chose to use Chakra UI for styling. It's definitely overkill for this project,
 And square `6` (as an example) will be initialized as follows:
 ```
 {
-    7: {
+    6: {
     current: 'notPlayed',
     adjacents: {
             top: null,
